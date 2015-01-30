@@ -2,6 +2,9 @@
 # Use this script to launch Mail-in-a-Box within a docker container.
 # ==================================================================
 #
+# Run this script from the base directory of the Mail-in-a-Box
+# repository (i.e. run as 'containers/docker/run').
+#
 # A base image is created first. The base image installs Ubuntu
 # packages and pulls in the Mail-in-a-Box source code. This is
 # defined in Dockerfile at the root of this repository.
@@ -16,7 +19,7 @@
 # initialize itself and will initialize the mailinabox-userdata
 # volume if the volume is new.
 
-
+# Name of 'docker' executable.
 DOCKER=docker
 
 # Build or rebuild the image.
@@ -24,7 +27,7 @@ DOCKER=docker
 $DOCKER build -q -t mailinabox .
 
 if ! $DOCKER ps -a | grep mailinabox-userdata > /dev/null; then
-	echo Starting user-data volume container...
+	echo "Creating a new container for user data..."
 	$DOCKER run -d \
 		--name mailinabox-userdata \
 		-v /home/user-data \
@@ -33,12 +36,12 @@ fi
 
 # End a running container.
 if $DOCKER ps -a | grep mailinabox-services > /dev/null; then
-	echo Deleting container...
-	$DOCKER rm mailinabox-services
+	echo "Destroying mailinabox-services container (your user data is safe in the separate mailinabox-userdata container)..."
+	$DOCKER rm -f mailinabox-services
 fi
 
 # Start container.
-echo Starting new container...
+echo "Starting new container..."
 $DOCKER run \
 	--privileged \
 	-v /dev/urandom:/dev/random \

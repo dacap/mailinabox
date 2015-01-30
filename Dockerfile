@@ -35,14 +35,14 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
 # Install packages needed by Mail-in-a-Box.
 ADD containers/docker/apt_package_list.txt /tmp/mailinabox_apt_package_list.txt
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y $(cat /tmp/mailinabox_apt_package_list.txt)
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y rsyslog
 RUN rm -f /tmp/mailinabox_apt_package_list.txt
+
+# Create the user-data user, so the start script doesn't have to.
 RUN useradd -m user-data
-RUN rm -rf /etc/service/syslog-ng
 
 # Now add Mail-in-a-Box to the system.
 ADD . /usr/local/mailinabox
-
-#RUN /usr/local/mailinabox/containers/docker/setup.sh 
 
 # We can't know things like the IP address where the container will eventually
 # be deployed until the container is started. We also don't want to create any
